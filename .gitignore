@@ -1,0 +1,29 @@
+# OS-specific junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Node/npm (in case you add tooling later)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+
+# Editor/IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Build output (if you use a bundler later)
+dist/
+build/
+
+# Misc
+*.bak
+*.tmp
+*.old
