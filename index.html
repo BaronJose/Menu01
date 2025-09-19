@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trendy Snack Bar Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --inset: 18px;       /* gap from viewport edge */
+      --pad: 36px;        /* inner slide padding */
+      --radius: 18px;
+    }
+
+    html,body{
+      height: 100%;
+      margin: 0;
+      background: #111;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;   /* prevent page scrolling; content scrolls inside slides */
+    }
+
+    /* container that holds slides */
+    .slides-wrap{
+      position: relative;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* each slide overlays the viewport but keeps an inset for spacing */
+    .slide{
+      position: absolute;
+      top: var(--inset);
+      left: var(--inset);
+      right: var(--inset);
+      bottom: var(--inset);
+      box-sizing: border-box;
+      padding: var(--pad);
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      overflow: hidden;           /* child area handles scrolling */
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+
+      /* initial hidden state, animated */
+      opacity: 0;
+      transform: translateY(8px) scale(.995);
+      transition: opacity .6s ease, transform .6s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* visible slide */
+    .slide.active{
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    /* header */
+    .slide > h1{
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+
+    /* scrollable content area inside the slide */
+    .content{
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow: auto;                 /* long lists scroll here */
+      -webkit-overflow-scrolling: touch;
+      padding-right: 6px;             /* room for scrollbar */
+    }
+
+    /* lists */
+    ul{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 1.25rem;
+      max-width: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* each menu row */
+    li{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+    }
+
+    /* left item grows, right price aligns right */
+    .item-name{
+      flex: 1 1 auto;
+      text-align: left;
+      min-width: 0; /* allow truncation if needed */
+      word-break: break-word;
+    }
+    .price{
+      flex: 0 0 80px;
+      text-align: right;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* category gradients (kept colors you had) */
+    .antojitos { background: linear-gradient(135deg, #ff6f61, #ff8a65); color: #fff; }
+    .tortas { background: linear-gradient(135deg, #66bb6a, #a5d6a7); color: #fff; }
+    .jugos { background: linear-gradient(135deg, #aed581, #dce775); color: #000; }
+    .raspados { background: linear-gradient(135deg, #64b5f6, #90caf9); color: #000; }
+    .desserts { background: linear-gradient(135deg, #ba68c8, #ce93d8); color: #fff; }
+    .combo { background: linear-gradient(135deg, #fbc02d, #fff176); color: #000; }
+
+    /* smaller titles inside content (e.g., Jugos sections) */
+    h2{
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+    }
+
+    /* responsive scaling */
+    @media (min-width: 1200px){
+      .slide > h1 { font-size: 4rem; }
+      ul { font-size: 1.6rem; gap: 12px; }
+      .price { flex-basis: 100px; }
+      :root { --pad: 48px; --inset: 24px; --radius: 20px; }
+    }
+
+    /* if a list is very long, make it multi-column on wide screens */
+    @media (min-width: 1000px){
+      .two-column {
+        column-count: 2;
+        column-gap: 40px;
+      }
+      .two-column li { display: block; }
+      .two-column .price { float: right; margin-left: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="slides-wrap" role="region" aria-label="Menu slides">
+
+    <div class="slide active antojitos" aria-hidden="false">
+      <h1>🌮 Antojitos</h1>
+      <div class="content">
+        <ul>
+          <li><span class="item-name">Chicharrones</span><span class="price">$5</span></li>
+          <li><span class="item-name">Elote en Vaso</span><span class="price">$5</span></li>
+          <li><span class="item-name">Elote en Cob</span><span class="price">$5</span></li>
+          <li><span class="item-name">Doritos en un Cup</span><span class="price">$6</span></li>
+          <li><span class="item-name">Esquites</span><span class="price">$5</span></li>
+          <li><span class="item-name">Tostilocos</span><span class="price">$6</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide tortas" aria-hidden="true">
+      <h1>🥪 Tortas</h1>
+      <div class="content">
+        <!-- long list — will scroll inside this slide -->
+        <ul class="two-column">
+          <li><span class="item-name">Jamón</span><span class="price">$11</span></li>
+          <li><span class="item-name">Pierna</span><span class="price">$11</span></li>
+          <li><span class="item-name">Hawaiana</span><span class="price">$12</span></li>
+          <li><span class="item-name">Cubana</span><span class="price">$13</span></li>
+          <li><span class="item-name">Milanesa</span></li>
+          <li><span class="item-name">Salchicha</span></li>
+          <li><span class="item-name">Tocino</span></li>
+          <li><span class="item-name">Huevo</span></li>
+          <li><span class="item-name">Chorizo</span></li>
+          <li><span class="item-name">Asada</span></li>
+          <li><span class="item-name">Pollo</span></li>
+          <li><span class="item-name">Pastor</span></li>
+          <li><span class="item-name">Barbacoa</span></li>
+          <li><span class="item-name">Chicharrón</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide jugos" aria-hidden="true">
+      <h1>🍹 Jugos &amp; Aguas</h1>
+      <div class="content">
+        <h2>Jugos Naturales</h2>
+        <ul>
+          <li><span class="item-name">Mediano</span><span class="price">$10</span></li>
+          <li><span class="item-name">Grande</span><span class="price">$14</span></li>
+          <li><span class="item-name">Naranja, Zanahoria, Apio, Betabel, Piña, Nopal, Espinaca</span></li>
+        </ul>
+
+        <h2>Aguas Frescas</h2>
+        <ul>
+          <li><span class="item-name">Mediano</span><span class="price">$5</span></li>
+          <li><span class="item-name">Grande</span><span class="price">$8</span></li>
+        </ul>
+
+        <h2>Malteadas / Smoothies / Licuados</h2>
+        <ul>
+          <li><span class="item-name">Fresa, Piña, Papaya, Mango, Plátano</span><span class="price">$8</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide raspados" aria-hidden="true">
+      <h1>🍧 Raspados &amp; Nieves</h1>
+      <div class="content">
+        <h2>Raspados</h2>
+        <ul>
+          <li><span class="item-name">Mango, Fresa, Piña, Tamarindo, Jamaica, Frutas, Nuez, Vainilla</span><span class="price">$5</span></li>
+        </ul>
+
+        <h2>Nieves</h2>
+        <ul>
+          <li><span class="item-name">Kids</span><span class="price">$5</span></li>
+          <li><span class="item-name">Scoop</span><span class="price">$6</span></li>
+          <li><span class="item-name">2 Scoops</span><span class="price">$8</span></li>
+          <li><span class="item-name">3 Scoops</span><span class="price">$10</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide desserts" aria-hidden="true">
+      <h1>🍓 Desserts</h1>
+      <div class="content">
+        <ul>
+          <li><span class="item-name">Mangoneada</span><span class="price">$9</span></li>
+          <li><span class="item-name">Acai Bowl</span><span class="price">$11</span></li>
+          <li><span class="item-name">Fresas con Crema</span><span class="price">$10</span></li>
+          <li><span class="item-name">Banana Split</span><span class="price">$9</span></li>
+          <li><span class="item-name">Crepas</span><span class="price">$11</span></li>
+          <li><span class="item-name">+ Nieve</span><span class="price">+$1</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide combo" aria-hidden="true">
+      <h1>🎉 A Tu Antojo Combo</h1>
+      <div class="content">
+        <ul>
+          <li><span class="item-name">Pick 3: Chicharrones, Elote, Doritos, Tostilocos, Raspado, Nieve, Crepa</span><span class="price">$15</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Slide rotation
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      let current = slides.findIndex(s => s.classList.contains('active'));
+      if (current < 0) current = 0;
+      slides.forEach((s, i) => s.setAttribute('aria-hidden', i === current ? 'false' : 'true'));
+
+      // Rotate every 8s
+      setInterval(() => {
+        slides[current].classList.remove('active');
+        slides[current].setAttribute('aria-hidden', 'true');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+        slides[current].setAttribute('aria-hidden', 'false');
+      }, 8000);
+
+      // Optional: pause rotation while hovering a slide (nice for presentations)
+      slides.forEach(s => {
+        s.addEventListener('mouseenter', () => {
+          // pause by clearing and re-creating the timer would be nicer; keeping simple for now
+        });
+      });
+    });
+  </script>
+</body>
+</html>
