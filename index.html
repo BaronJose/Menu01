@@ -12,7 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        /* All your existing CSS styles remain the same */
         html, body {
             height: 100%;
             overflow: hidden;
@@ -37,7 +36,7 @@
             gap: 2vw;
         }
         .menu-category {
-            font-size: 2.5vw;
+            font-size: 1.5vw;
             margin-bottom: 0.5em;
             border-bottom: 4px solid #c5a07e;
             padding-bottom: 0.3em;
@@ -66,7 +65,7 @@
             margin-top: 0.5vh;
         }
         .header-title {
-            font-size: 5vw;
+            font-size: 3vw;
             color: #d4af37;
         }
         .asterisk {
@@ -74,15 +73,31 @@
             color: #c5a07e;
             font-size: 2.5vw;
         }
-        .footer-items {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.5vw;
+
+        /* --- STYLES FOR ROTATING FOOTER --- */
+        .footer-wrapper {
+            width: 100%;
+            overflow: hidden; /* Hides the items that are off-screen */
             margin-top: 1vh;
         }
+
+        .footer-items {
+            display: flex; /* Aligns items in a row */
+            width: fit-content; /* Container width is based on its content */
+            /* Animation will be applied by JavaScript */
+            animation-name: scroll;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
         .footer-item {
             text-align: center;
+            flex-shrink: 0; /* Prevents items from shrinking */
+            width: 16.6vw; /* 100vw / 6 items visible at a time */
+            padding: 0 0.75vw; /* Corresponds to the old gap */
+            box-sizing: border-box;
         }
+        
         .footer-item img {
             border: 4px solid #c5a07e;
             border-radius: 0.5rem;
@@ -96,6 +111,18 @@
             margin-top: 0.5vh;
             text-transform: uppercase;
         }
+
+        /* The animation that moves the items */
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                /* Moves the container left by the width of the original set of items */
+                transform: translateX(-50%);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -109,15 +136,14 @@
             <div class="asterisk absolute top-1/2 -translate-y-1/2 right-20">*</div>
         </header>
 
-        <div id="menu-grid" class="menu-grid">
-            </div>
+        <div id="menu-grid" class="menu-grid"></div>
 
-        <div id="footer-items" class="footer-items">
-            </div>
+        <div class="footer-wrapper">
+            <div id="footer-items" class="footer-items"></div>
+        </div>
     </div>
 
 <script>
-    // ### PASTE YOUR GOOGLE SHEET URL HERE ###
     const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbfxhYys7zgw7Tw-pdkAZnvQXUEDglxte9orQzkBqbFJBSdPNk-K3otQ9d_2eIcMUXcCb21IMAObpz/pub?output=csv';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -135,7 +161,7 @@
             },
             error: (error) => {
                 console.error('Error fetching or parsing sheet data:', error);
-                document.getElementById('menu-grid').innerHTML = '<p>Error loading menu. Please check the Google Sheet URL and settings.</p>';
+                document.getElementById('menu-grid').innerHTML = '<p>Error loading menu.</p>';
             }
         });
     });
@@ -144,41 +170,50 @@
     function displayMenu(data) {
         const menuGrid = document.getElementById('menu-grid');
         const maxColumns = 4;
-
-        // Step 1: Group all items by their category.
         const categories = {};
         data.forEach(item => {
-            if (!item.Category) return; // Skip items with no category
+            if (!item.Category) return;
             if (!categories[item.Category]) {
-                categories[item.Category] = []; // Create an array for the new category
+                categories[item.Category] = [];
             }
-            categories[item.Category].push(item); // Add the item to its category group
+            categories[item.Category].push(item);
         });
 
-        // Step 2: Prepare the columns and distribute the category groups into them.
-        const columnsHtml = Array(maxColumns).fill(''); // Create an array of empty strings for our columns
+        const columnsHtml = Array(maxColumns).fill('');
         const categoryNames = Object.keys(categories);
 
         categoryNames.forEach((categoryName, index) => {
-            const columnIndex = index % maxColumns; // Distribute categories evenly (0, 1, 2, 3, 0, 1, ...)
+            const columnIndex = index % maxColumns;
             
-            // Build the HTML for the entire category block
-            let categoryHtml = `<h2 class="font-display menu-category">${categoryName}</h2>`;
+            // --- NEW CHANGE IS HERE ---
+            let categoryTitle = categoryName;
+            let categoryDescription = '';
+
+            // If the category is "Tortas", prepare the shared description
+            if (categoryName === 'Tortas' && categories[categoryName][0]?.Description) {
+                categoryDescription = `<div class="description">${categories[categoryName][0].Description}</div>`;
+            }
+            
+            // Build the H2 tag with the title and the (optional) description inside it
+            let categoryHtml = `<h2 class="font-display menu-category">${categoryTitle}${categoryDescription}</h2>`;
+
+            // Loop through the items in the category
             categories[categoryName].forEach(item => {
                 categoryHtml += `
                     <div class="menu-item">
                         <span class="menu-item-name">${item.ItemName}</span>
                         ${item.Price ? `<span class="menu-item-price">${item.Price}</span>` : ''}
                     </div>
-                    ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
                 `;
+                // Add individual descriptions ONLY if the category is NOT "Tortas"
+                if (categoryName !== 'Tortas' && item.Description) {
+                    categoryHtml += `<p class="description">${item.Description}</p>`;
+                }
             });
             
-            // Add this category's HTML to the appropriate column
             columnsHtml[columnIndex] += categoryHtml;
         });
 
-        // Step 3: Build the final grid HTML and inject it into the page.
         menuGrid.innerHTML = columnsHtml.map(columnContent => 
             `<div class="menu-column">${columnContent}</div>`
         ).join('');
@@ -186,19 +221,28 @@
 
 
     function displayFooter(data) {
-        const footerGrid = document.getElementById('footer-items');
+        if (data.length === 0) return; 
+
+        const footerContainer = document.getElementById('footer-items');
         let footerHtml = '';
         data.forEach(item => {
             if (item.ImageURL) {
                 footerHtml += `
                     <div class="footer-item">
                         <img src="${item.ImageURL}" alt="${item.ItemName}">
-                        <h3 class="font-display footer-item-title">${item.ItemName} ${item.Price || ''}</h3>
+                        <h3 class="font-display footer-item-title">${item.ItemName || ''} ${item.Price || ''}</h3>
                     </div>
                 `;
             }
         });
-        footerGrid.innerHTML = footerHtml;
+
+        // Duplicate the items to create a seamless loop
+        footerContainer.innerHTML = footerHtml + footerHtml;
+
+        // Calculate and set the animation duration to maintain a consistent speed
+        const secondsPerItem = 4; // Adjust this value to make the scroll faster or slower
+        const duration = data.length * secondsPerItem;
+        footerContainer.style.animationDuration = `${duration}s`;
     }
 
 </script>
