@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Antojitos Menu Display</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      background-color: #1b1b1b;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-family: 'Alfa Slab One', cursive;
+      font-size: 2.5em;
+      text-align: center;
+      margin: 20px 0 10px;
+      color: #ff4d00;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px #000;
+      border-bottom: 4px double #ffd700;
+      padding-bottom: 10px;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      padding: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      box-sizing: border-box;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+      height: calc(100% - 100px);
+    }
+
+    .item {
+      background-color: #2a2a2a;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      border: 2px dashed #ff4d00;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .item img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 2px solid #333;
+    }
+
+    .item h2 {
+      font-family: 'Alfa Slab One', cursive;
+      font-size: 1.1em;
+      margin: 6px 0;
+      color: #ffd700;
+    }
+
+    .item p {
+      font-size: 0.8em;
+      margin: 0;
+      color: #ccc;
+      flex-grow: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .price {
+      font-size: 1em;
+      font-weight: 600;
+      color: #00c896;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1200px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="menu"></div>
+
+  <script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRaKgZ1ycVG1w5xRnoAM0Gp8fAcrTltlUNiFLdnbJJ5MXAYRklU77P6IqDVD-nPXix2Q9cLJSyWufjb/pub?output=csv';
+    const chunkSize = 8;
+
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      transformHeader: h => h.trim().toLowerCase(),
+      complete: function(results) {
+        const data = results.data;
+        const grouped = {};
+
+        data.forEach(row => {
+          const category = row['category']?.trim();
+          if (!category) return;
+          if (!grouped[category]) grouped[category] = [];
+          grouped[category].push(row);
+        });
+
+        const menu = document.getElementById('menu');
+        let firstSlide = true;
+
+        Object.entries(grouped).forEach(([category, items]) => {
+          const totalChunks = Math.ceil(items.length / chunkSize);
+
+          for (let i = 0; i < items.length; i += chunkSize) {
+            const chunk = items.slice(i, i + chunkSize);
+            while (chunk.length < chunkSize) {
+              chunk.push({ placeholder: true });
+            }
+
+            const slide = document.createElement('section');
+            slide.className = 'slide' + (firstSlide ? ' active' : '');
+            firstSlide = false;
+
+            const title = document.createElement('h1');
+            title.textContent = totalChunks > 1
+              ? `${category} (${Math.floor(i / chunkSize) + 1} de ${totalChunks})`
+              : category;
+            slide.appendChild(title);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+
+            chunk.forEach(item => {
+              const card = document.createElement('div');
+              card.className = 'item';
+
+              if (item.placeholder) {
+                card.style.visibility = 'hidden';
+                grid.appendChild(card);
+                return;
+              }
+
+              if (item.image) {
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.item || '';
+                card.appendChild(img);
+              }
+
+              const name = document.createElement('h2');
+              name.textContent = item.item || '';
+              card.appendChild(name);
+
+              if (item.description) {
+                const desc = document.createElement('p');
+                desc.textContent = item.description;
+                card.appendChild(desc);
+              }
+
+              if (item.price) {
+                const price = document.createElement('div');
+                price.className = 'price';
+                price.textContent = item.price;
+                card.appendChild(price);
+              }
+
+              grid.appendChild(card);
+            });
+
+            slide.appendChild(grid);
+            menu.appendChild(slide);
+          }
+        });
+
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+
+        if (slides.length > 1) {
+          setInterval(() => {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+          }, 5000);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
