@@ -24,8 +24,6 @@
         .font-display {
             font-family: 'Lilita One', cursive;
         }
-
-        /* Layout */
         .menu-container {
             width: 100%;
             height: 100vh;
@@ -37,16 +35,25 @@
         .menu-grid {
             flex-grow: 1;
             display: grid;
-            /* REVISED: Set to a variable that JS will control, defaults to 4 */
             grid-template-columns: repeat(var(--columns-per-slide, 4), 1fr);
             gap: 2vw;
             overflow: hidden;
             min-height: 0;
-            /* ADDED: Smooth transition for the fade effect */
             transition: opacity 0.5s ease-in-out;
         }
 
-        /* Typography using vmin */
+        /* --- Column Scrolling Rules --- */
+        .menu-column {
+            /* Allows the column to scroll internally if its content is too tall */
+            overflow-y: auto;
+            /* Hides the scrollbar for Firefox */
+            scrollbar-width: none;
+        }
+        /* Hides the scrollbar for Chrome, Safari, and Edge */
+        .menu-column::-webkit-scrollbar {
+            display: none;
+        }
+
         .header-title {
             font-size: clamp(2.5rem, 7vmin, 4rem);
             color: #d4af37;
@@ -85,8 +92,6 @@
             color: #c5a07e;
             font-size: clamp(1.5rem, 3.5vmin, 2.2rem);
         }
-
-        /* Rotating Footer Styles */
         .footer-wrapper {
             width: 100%;
             overflow: hidden;
@@ -123,7 +128,6 @@
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
-
     </style>
 </head>
 <body>
@@ -146,15 +150,22 @@
     // --- Configuration ---
     const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbfxhYys7zgw7Tw-pdkAZnvQXUEDglxte9orQzkBqbFJBSdPNk-K3otQ9d_2eIcMUXcCb21IMAObpz/pub?output=csv';
     const SECONDS_PER_ITEM = 4;
-    // --- SLIDESHOW CONFIGURATION ---
-    const COLUMNS_PER_SLIDE = 4; // CHANGED: Now shows 4 columns per slide
     const SLIDE_INTERVAL_SECONDS = 10;
+    
+    let COLUMNS_PER_SLIDE;
 
     /**
      * Main function runs after the page is loaded
      */
     document.addEventListener('DOMContentLoaded', () => {
-        // Set the CSS variable for the number of columns
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        // If the screen is more than twice as wide as it is tall, use 2 columns.
+        if (aspectRatio > 2) {
+            COLUMNS_PER_SLIDE = 2;
+        } else {
+            COLUMNS_PER_SLIDE = 4;
+        }
+
         document.documentElement.style.setProperty('--columns-per-slide', COLUMNS_PER_SLIDE);
 
         Papa.parse(GOOGLE_SHEET_URL, {
@@ -183,7 +194,6 @@
         const menuGrid = document.getElementById('menu-grid');
         if (!data.length) return;
 
-        // 1. Group all items by their category first
         const categories = {};
         data.forEach(item => {
             if (!categories[item.Category]) {
@@ -192,7 +202,6 @@
             categories[item.Category].push(item);
         });
 
-        // 2. Chunk the categories into slides
         const categoryNames = Object.keys(categories);
         const slides = [];
         for (let i = 0; i < categoryNames.length; i += COLUMNS_PER_SLIDE) {
@@ -201,15 +210,11 @@
 
         let currentSlideIndex = 0;
 
-        // 3. Create a function to render a specific slide
         function renderSlide(slideIndex) {
             const slideCategories = slides[slideIndex];
             if (!slideCategories) return;
-
-            // Fade out the grid
             menuGrid.style.opacity = 0;
 
-            // After the fade-out, update the content and fade back in
             setTimeout(() => {
                 const columnsHtml = slideCategories.map(categoryName => {
                     const itemsHtml = categories[categoryName].map(item => `
@@ -219,28 +224,21 @@
                         </div>
                         ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
                     `).join('');
-
-                    return `
-                        <div class="menu-column">
-                            <h2 class="font-display menu-category">${categoryName}</h2>
-                            ${itemsHtml}
-                        </div>
-                    `;
+                    return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
                 }).join('');
                 
                 menuGrid.innerHTML = columnsHtml;
-                menuGrid.style.opacity = 1; // Fade in
-            }, 500); // This timeout should match the CSS transition duration
+                menuGrid.style.opacity = 1;
+            }, 500);
         }
 
-        // 4. Initial render and start the slideshow timer
         renderSlide(0);
         
         if (slides.length > 1) {
             setInterval(() => {
                 currentSlideIndex = (currentSlideIndex + 1) % slides.length;
                 renderSlide(currentSlideIndex);
-            }, SLIDE_INTERVAL_SECONDS * 1000);
+            }, SLIDE_INTERVAL_SECONDS * 500);
         }
     }
 
