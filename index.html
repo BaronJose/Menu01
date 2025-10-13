@@ -42,14 +42,10 @@
             transition: opacity 0.5s ease-in-out;
         }
 
-        /* --- Column Scrolling Rules --- */
         .menu-column {
-            /* Allows the column to scroll internally if its content is too tall */
             overflow-y: auto;
-            /* Hides the scrollbar for Firefox */
             scrollbar-width: none;
         }
-        /* Hides the scrollbar for Chrome, Safari, and Edge */
         .menu-column::-webkit-scrollbar {
             display: none;
         }
@@ -65,9 +61,11 @@
             padding-bottom: 0.3em;
             text-transform: uppercase;
         }
+        
+        /* REVISED: Styles for menu items and new elements */
         .menu-item {
             display: flex;
-            justify-content: space-between;
+            align-items: baseline; /* Aligns text and dots nicely */
             font-size: clamp(0.9rem, 2vmin, 1.2rem);
             line-height: 1.5;
             margin-top: 0.5vh;
@@ -75,23 +73,48 @@
         .menu-item-name {
             text-transform: uppercase;
         }
+        /* NEW: Dotted leader style */
+        .dots {
+            flex-grow: 1;
+            border-bottom: 2px dotted #c5a07e;
+            margin: 0 0.4em;
+            transform: translateY(-0.2em);
+        }
         .menu-item-price {
             font-weight: 700;
+            padding-left: 0.5vw;
+            flex-shrink: 0;
             white-space: nowrap;
-            padding-left: 1vw;
         }
         .description {
             font-size: clamp(0.8rem, 1.6vmin, 0.95rem);
             text-transform: none;
             color: #6d4c41;
             line-height: 1.4;
-            margin-top: 0.5vh;
+            padding-left: 0.5em; /* Small indent for ingredients */
+            font-style: italic;
+        }
+        /* NEW: Styles for sub-headings and price lines */
+        .sub-heading {
+            font-weight: 700;
+            font-size: clamp(1rem, 2.2vmin, 1.3rem);
+            text-transform: uppercase;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        .price-line {
+            font-weight: 700;
+            font-size: clamp(1rem, 2.2vmin, 1.3rem);
+            text-align: center;
+            margin-bottom: 1em;
         }
         .asterisk {
             font-family: 'Lilita One', cursive;
             color: #c5a07e;
             font-size: clamp(1.5rem, 3.5vmin, 2.2rem);
         }
+
+        /* Footer styles remain the same */
         .footer-wrapper {
             width: 100%;
             overflow: hidden;
@@ -101,9 +124,7 @@
         .footer-items {
             display: flex;
             width: fit-content;
-            animation-name: scroll;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
+            animation: scroll linear infinite;
         }
         .footer-item {
             text-align: center;
@@ -154,18 +175,9 @@
     
     let COLUMNS_PER_SLIDE;
 
-    /**
-     * Main function runs after the page is loaded
-     */
     document.addEventListener('DOMContentLoaded', () => {
         const aspectRatio = window.innerWidth / window.innerHeight;
-        // If the screen is more than twice as wide as it is tall, use 2 columns.
-        if (aspectRatio > 2) {
-            COLUMNS_PER_SLIDE = 2;
-        } else {
-            COLUMNS_PER_SLIDE = 4;
-        }
-
+        COLUMNS_PER_SLIDE = (aspectRatio > 2) ? 2 : 4;
         document.documentElement.style.setProperty('--columns-per-slide', COLUMNS_PER_SLIDE);
 
         Papa.parse(GOOGLE_SHEET_URL, {
@@ -179,16 +191,12 @@
                 displayMenuSlideshow(menuData);
                 displayFooter(footerData);
             },
-            error: (error) => {
-                console.error('Error fetching or parsing sheet data:', error);
-                document.getElementById('menu-grid').innerHTML = '<p>Error loading menu.</p>';
-            }
+            error: (error) => console.error('Error loading menu:', error)
         });
     });
 
     /**
-     * Manages and displays the menu as a rotating slideshow.
-     * @param {Array} data - The array of menu item objects.
+     * REVISED: Manages the slideshow and renders items with the new structure.
      */
     function displayMenuSlideshow(data) {
         const menuGrid = document.getElementById('menu-grid');
@@ -196,9 +204,7 @@
 
         const categories = {};
         data.forEach(item => {
-            if (!categories[item.Category]) {
-                categories[item.Category] = [];
-            }
+            if (!categories[item.Category]) categories[item.Category] = [];
             categories[item.Category].push(item);
         });
 
@@ -217,13 +223,28 @@
 
             setTimeout(() => {
                 const columnsHtml = slideCategories.map(categoryName => {
-                    const itemsHtml = categories[categoryName].map(item => `
-                        <div class="menu-item">
-                            <span class="menu-item-name">${item.ItemName}</span>
-                            ${item.Price ? `<span class="menu-item-price">${item.Price}</span>` : ''}
-                        </div>
-                        ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
-                    `).join('');
+                    const itemsHtml = categories[categoryName].map(item => {
+                        // NEW LOGIC: Check for special row types
+                        // Case 1: It's a Price Line (e.g., for juices)
+                        if (!item.ItemName && item.Price) {
+                            return `<div class="price-line">${item.Price}</div>`;
+                        }
+                        // Case 2: It's a Sub-heading (e.g., AGUAS FRESCAS)
+                        if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
+                            return `<h3 class="sub-heading">${item.ItemName}</h3>`;
+                        }
+                        // Case 3: It's a standard menu item
+                        return `
+                            <div>
+                                <div class="menu-item">
+                                    <span class="menu-item-name">${item.ItemName}</span>
+                                    <span class="dots"></span>
+                                    <span class="menu-item-price">${item.Price}</span>
+                                </div>
+                                ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
+                            </div>
+                        `;
+                    }).join('');
                     return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
                 }).join('');
                 
@@ -238,14 +259,10 @@
             setInterval(() => {
                 currentSlideIndex = (currentSlideIndex + 1) % slides.length;
                 renderSlide(currentSlideIndex);
-            }, SLIDE_INTERVAL_SECONDS * 500);
+            }, SLIDE_INTERVAL_SECONDS * 1000);
         }
     }
 
-    /**
-     * Creates a rotating carousel of footer items.
-     * @param {Array} data - The array of footer item objects.
-     */
     function displayFooter(data) {
         if (data.length === 0) return;
         const footerContainer = document.getElementById('footer-items');
