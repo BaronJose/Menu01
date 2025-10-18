@@ -14,9 +14,10 @@
         *, *::before, *::after {
             box-sizing: border-box;
         }
+        /* DESKTOP STYLES (Default) */
         html, body {
             height: 100%;
-            overflow: hidden;
+            overflow: hidden; /* This is for the desktop kiosk view */
             font-family: 'Roboto Condensed', sans-serif;
             background-color: #fdfaf3;
             color: #4a2c2a;
@@ -62,10 +63,9 @@
             text-transform: uppercase;
         }
         
-        /* REVISED: Styles for menu items and new elements */
         .menu-item {
             display: flex;
-            align-items: baseline; /* Aligns text and dots nicely */
+            align-items: baseline;
             font-size: clamp(0.9rem, 2vmin, 1.2rem);
             line-height: 2.5;
             margin-top: 0.5vh;
@@ -73,7 +73,6 @@
         .menu-item-name {
             text-transform: uppercase;
         }
-        /* NEW: Dotted leader style */
         .dots {
             flex-grow: 1;
             border-bottom: 2px dotted #c5a07e;
@@ -91,10 +90,9 @@
             text-transform: none;
             color: #6d4c41;
             line-height: 1.4;
-            padding-left: 0.5em; /* Small indent for ingredients */
+            padding-left: 0.5em;
             font-style: italic;
         }
-        /* NEW: Styles for sub-headings and price lines */
         .sub-heading {
             font-weight: 700;
             font-size: clamp(1rem, 2.2vmin, 1.3rem);
@@ -114,7 +112,6 @@
             font-size: clamp(1.5rem, 3.5vmin, 2.2rem);
         }
 
-        /* Footer styles remain the same */
         .footer-wrapper {
             width: 100%;
             overflow: hidden;
@@ -149,6 +146,60 @@
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
+
+        /* --- NEW: MOBILE STYLES --- */
+        @media (max-width: 768px) {
+            /* Allow the page to scroll */
+            html, body {
+                height: auto;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            .menu-container {
+                height: auto;
+                min-height: 100vh;
+                padding: 2vh 5vw; /* More horizontal padding */
+            }
+            /* Stack all categories in one column */
+            .menu-grid {
+                grid-template-columns: 1fr;
+                overflow: visible;
+                gap: 2.5em; /* Space between categories */
+            }
+            /* Remove internal scrolling on columns */
+            .menu-column {
+                overflow-y: visible;
+            }
+            .header-title {
+                font-size: clamp(2.2rem, 10vw, 3rem);
+            }
+            /* Hide decorative asterisks on mobile */
+            .asterisk {
+                display: none; 
+            }
+            .menu-category {
+                font-size: clamp(1.5rem, 6vw, 1.8rem);
+            }
+            .menu-item {
+                font-size: clamp(1rem, 4vw, 1.1rem);
+                line-height: 2.2;
+            }
+            .description {
+                font-size: clamp(0.9rem, 3.5vw, 1rem);
+            }
+            .sub-heading, .price-line {
+                font-size: clamp(1rem, 4.2vw, 1.2rem);
+            }
+            /* Make footer images larger and more readable */
+            .footer-item {
+                width: 40vw; 
+                padding: 0 2vw;
+            }
+            .footer-item-title {
+                 font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -176,6 +227,9 @@
     let COLUMNS_PER_SLIDE;
 
     document.addEventListener('DOMContentLoaded', () => {
+        // --- NEW: Check if mobile ---
+        const isMobile = window.innerWidth <= 768;
+
         const aspectRatio = window.innerWidth / window.innerHeight;
         COLUMNS_PER_SLIDE = (aspectRatio > 2) ? 2 : 4;
         document.documentElement.style.setProperty('--columns-per-slide', COLUMNS_PER_SLIDE);
@@ -188,7 +242,12 @@
                 const menuData = results.data.filter(row => row.Category && row.Category.trim() !== 'Footer');
                 const footerData = results.data.filter(row => row.Category && row.Category.trim() === 'Footer');
                 
-                displayMenuSlideshow(menuData);
+                // --- NEW: Use different function based on device ---
+                if (isMobile) {
+                    displayMobileMenu(menuData);
+                } else {
+                    displayMenuSlideshow(menuData);
+                }
                 displayFooter(footerData);
             },
             error: (error) => console.error('Error loading menu:', error)
@@ -196,7 +255,51 @@
     });
 
     /**
-     * REVISED: Manages the slideshow and renders items with the new structure.
+     * NEW: Renders the entire menu for mobile (no slideshow).
+     */
+    function displayMobileMenu(data) {
+        const menuGrid = document.getElementById('menu-grid');
+        if (!data.length) return;
+
+        const categories = {};
+        data.forEach(item => {
+            if (!categories[item.Category]) categories[item.Category] = [];
+            categories[item.Category].push(item);
+        });
+
+        const categoryNames = Object.keys(categories);
+
+        // Render all categories in one go
+        const allColumnsHtml = categoryNames.map(categoryName => {
+            const itemsHtml = categories[categoryName].map(item => {
+                // Logic to render item (copied from original)
+                if (!item.ItemName && item.Price) {
+                    return `<div class="price-line">${item.Price}</div>`;
+                }
+                if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
+                    return `<h3 class="sub-heading">${item.ItemName}</h3>`;
+                }
+                return `
+                    <div>
+                        <div class="menu-item">
+                            <span class="menu-item-name">${item.ItemName}</span>
+                            <span class="dots"></span>
+                            <span class="menu-item-price">${item.Price}</span>
+                        </div>
+                        ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+            // Each category still gets a .menu-column wrapper, which will be stacked by the mobile CSS
+            return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
+        }).join('');
+        
+        menuGrid.innerHTML = allColumnsHtml;
+        // No opacity transition or interval needed
+    }
+
+    /**
+     * EXISTING: Manages the slideshow for DESKTOP.
      */
     function displayMenuSlideshow(data) {
         const menuGrid = document.getElementById('menu-grid');
@@ -224,16 +327,13 @@
             setTimeout(() => {
                 const columnsHtml = slideCategories.map(categoryName => {
                     const itemsHtml = categories[categoryName].map(item => {
-                        // NEW LOGIC: Check for special row types
-                        // Case 1: It's a Price Line (e.g., for juices)
+                        // (Original logic remains)
                         if (!item.ItemName && item.Price) {
                             return `<div class="price-line">${item.Price}</div>`;
                         }
-                        // Case 2: It's a Sub-heading (e.g., AGUAS FRESCAS)
                         if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
                             return `<h3 class="sub-heading">${item.ItemName}</h3>`;
                         }
-                        // Case 3: It's a standard menu item
                         return `
                             <div>
                                 <div class="menu-item">
@@ -263,6 +363,9 @@
         }
     }
 
+    /**
+     * EXISTING: Manages the footer (no changes needed).
+     */
     function displayFooter(data) {
         if (data.length === 0) return;
         const footerContainer = document.getElementById('footer-items');
