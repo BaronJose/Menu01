@@ -338,6 +338,45 @@
         let COLUMNS_PER_SLIDE;
 
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Prevent sleep mode for Firestick/kiosk displays ---
+            let wakeLock = null;
+
+            async function requestWakeLock() {
+                try {
+                    if ('wakeLock' in navigator) {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Wake Lock activated');
+
+                        // Re-request wake lock if it's released (e.g., when page becomes visible again)
+                        wakeLock.addEventListener('release', () => {
+                            console.log('Wake Lock released');
+                        });
+                    }
+                } catch (err) {
+                    console.log('Wake Lock not supported or failed:', err);
+                }
+            }
+
+            // Request wake lock on page load
+            requestWakeLock();
+
+            // Re-request wake lock when page becomes visible again
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible' && wakeLock === null) {
+                    await requestWakeLock();
+                }
+            });
+
+            // Fallback: Keep page active with periodic activity (for devices without Wake Lock API)
+            // This subtle animation keeps the browser from going to sleep
+            let keepAliveInterval = setInterval(() => {
+                // Trigger a minimal repaint to keep the page active
+                document.body.style.opacity = '0.999';
+                setTimeout(() => {
+                    document.body.style.opacity = '1';
+                }, 1);
+            }, 30000); // Every 30 seconds
+
             // --- NEW: Check if mobile ---
             const isMobile = window.innerWidth <= 768;
 
