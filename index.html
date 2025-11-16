@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,23 +9,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto+Condensed:wght@400;700&display=swap"
+        rel="stylesheet">
 
     <style>
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
         }
+
         /* DESKTOP STYLES (Default) */
-        html, body {
+        html,
+        body {
             height: 100%;
-            overflow: hidden; /* This is for the desktop kiosk view */
+            overflow: hidden;
+            /* This is for the desktop kiosk view */
             font-family: 'Roboto Condensed', sans-serif;
             background-color: #fdfaf3;
             color: #4a2c2a;
         }
+
         .font-display {
             font-family: 'Lilita One', cursive;
         }
+
         .menu-container {
             width: 100%;
             height: 100vh;
@@ -33,6 +42,7 @@
             padding: 1vh 2vw 1.5vh;
             word-break: break-word;
         }
+
         .menu-grid {
             flex-grow: 1;
             display: grid;
@@ -47,6 +57,7 @@
             overflow-y: auto;
             scrollbar-width: none;
         }
+
         .menu-column::-webkit-scrollbar {
             display: none;
         }
@@ -55,6 +66,7 @@
             font-size: clamp(2.5rem, 7vmin, 4rem);
             color: #d4af37;
         }
+
         .menu-category {
             font-size: clamp(1.3rem, 3.5vmin, 2rem);
             margin-bottom: 0.5em;
@@ -62,7 +74,7 @@
             padding-bottom: 0.3em;
             text-transform: uppercase;
         }
-        
+
         .menu-item {
             display: flex;
             align-items: baseline;
@@ -70,21 +82,25 @@
             line-height: 2.5;
             margin-top: 0.5vh;
         }
+
         .menu-item-name {
             text-transform: uppercase;
         }
+
         .dots {
             flex-grow: 1;
             border-bottom: 2px dotted #c5a07e;
             margin: 0 0.4em;
             transform: translateY(-0.2em);
         }
+
         .menu-item-price {
             font-weight: 700;
             padding-left: 0.5vw;
             flex-shrink: 0;
             white-space: nowrap;
         }
+
         .description {
             font-size: clamp(0.8rem, 1.6vmin, 0.95rem);
             text-transform: none;
@@ -93,6 +109,7 @@
             padding-left: 0.5em;
             font-style: italic;
         }
+
         .sub-heading {
             font-weight: 700;
             font-size: clamp(1rem, 2.2vmin, 1.3rem);
@@ -100,12 +117,14 @@
             margin-top: 1.5em;
             margin-bottom: 0.5em;
         }
+
         .price-line {
             font-weight: 700;
             font-size: clamp(1rem, 2.2vmin, 1.3rem);
             text-align: center;
             margin-bottom: 1em;
         }
+
         .asterisk {
             font-family: 'Lilita One', cursive;
             color: #c5a07e;
@@ -118,17 +137,20 @@
             margin-top: 1vh;
             flex-shrink: 0;
         }
+
         .footer-items {
             display: flex;
             width: fit-content;
             animation: scroll linear infinite;
         }
+
         .footer-item {
             text-align: center;
             flex-shrink: 0;
             width: 16.6vw;
             padding: 0 0.75vw;
         }
+
         .footer-item img {
             border: 4px solid #c5a07e;
             border-radius: 0.5rem;
@@ -136,72 +158,161 @@
             aspect-ratio: 1 / 1;
             object-fit: cover;
         }
+
         .footer-item-title {
             font-size: clamp(0.9rem, 2.2vmin, 1.3rem);
             font-weight: 700;
             margin-top: 0.5vh;
             text-transform: uppercase;
         }
+
         @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* --- SPECIFIC RESOLUTION: 960x540 (with slight tolerance) --- */
+        @media (min-width: 955px) and (max-width: 965px) and (min-height: 535px) and (max-height: 545px) {
+
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            .menu-container {
+                height: 100vh;
+                padding: 0.5vh 1.5vw 1vh;
+            }
+
+            .header-title {
+                font-size: 2.2rem;
+                margin-bottom: 0.3vh;
+            }
+
+            .asterisk {
+                font-size: 1.8rem;
+            }
+
+            .menu-grid {
+                gap: 1.5vw;
+            }
+
+            .menu-category {
+                font-size: 1.2rem;
+                margin-bottom: 0.3em;
+                padding-bottom: 0.2em;
+            }
+
+            .menu-item {
+                font-size: 0.85rem;
+                line-height: 2;
+                margin-top: 0.3vh;
+            }
+
+            .description {
+                font-size: 0.75rem;
+                line-height: 1.3;
+            }
+
+            .sub-heading,
+            .price-line {
+                font-size: 0.9rem;
+                margin-top: 1em;
+                margin-bottom: 0.3em;
+            }
+
+            .footer-wrapper {
+                margin-top: 0.5vh;
+            }
+
+            .footer-item {
+                width: 15vw;
+                padding: 0 0.5vw;
+            }
+
+            .footer-item-title {
+                font-size: 0.85rem;
+                margin-top: 0.3vh;
+            }
         }
 
         /* --- NEW: MOBILE STYLES --- */
         @media (max-width: 768px) {
+
             /* Allow the page to scroll */
-            html, body {
+            html,
+            body {
                 height: auto;
                 overflow-y: auto;
                 overflow-x: hidden;
             }
+
             .menu-container {
                 height: auto;
                 min-height: 100vh;
-                padding: 2vh 5vw; /* More horizontal padding */
+                padding: 2vh 5vw;
+                /* More horizontal padding */
             }
+
             /* Stack all categories in one column */
             .menu-grid {
                 grid-template-columns: 1fr;
                 overflow: visible;
-                gap: 2.5em; /* Space between categories */
+                gap: 2.5em;
+                /* Space between categories */
             }
+
             /* Remove internal scrolling on columns */
             .menu-column {
                 overflow-y: visible;
             }
+
             .header-title {
                 font-size: clamp(2.2rem, 10vw, 3rem);
             }
+
             /* Hide decorative asterisks on mobile */
             .asterisk {
-                display: none; 
+                display: none;
             }
+
             .menu-category {
                 font-size: clamp(1.5rem, 6vw, 1.8rem);
             }
+
             .menu-item {
                 font-size: clamp(1rem, 4vw, 1.1rem);
                 line-height: 2.2;
             }
+
             .description {
                 font-size: clamp(0.9rem, 3.5vw, 1rem);
             }
-            .sub-heading, .price-line {
+
+            .sub-heading,
+            .price-line {
                 font-size: clamp(1rem, 4.2vw, 1.2rem);
             }
+
             /* Make footer images larger and more readable */
             .footer-item {
-                width: 40vw; 
+                width: 40vw;
                 padding: 0 2vw;
             }
+
             .footer-item-title {
-                 font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+                font-size: clamp(0.9rem, 3.5vw, 1.1rem);
             }
         }
-
     </style>
 </head>
+
 <body>
     <div class="menu-container">
         <header class="text-center relative flex-shrink-0">
@@ -218,68 +329,68 @@
         </div>
     </div>
 
-<script>
-    // --- Configuration ---
-    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbfxhYys7zgw7Tw-pdkAZnvQXUEDglxte9orQzkBqbFJBSdPNk-K3otQ9d_2eIcMUXcCb21IMAObpz/pub?output=csv';
-    const SECONDS_PER_ITEM = 4;
-    const SLIDE_INTERVAL_SECONDS = 10;
-    
-    let COLUMNS_PER_SLIDE;
+    <script>
+        // --- Configuration ---
+        const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbfxhYys7zgw7Tw-pdkAZnvQXUEDglxte9orQzkBqbFJBSdPNk-K3otQ9d_2eIcMUXcCb21IMAObpz/pub?output=csv';
+        const SECONDS_PER_ITEM = 4;
+        const SLIDE_INTERVAL_SECONDS = 10;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- NEW: Check if mobile ---
-        const isMobile = window.innerWidth <= 768;
+        let COLUMNS_PER_SLIDE;
 
-        const aspectRatio = window.innerWidth / window.innerHeight;
-        COLUMNS_PER_SLIDE = (aspectRatio > 2) ? 2 : 4;
-        document.documentElement.style.setProperty('--columns-per-slide', COLUMNS_PER_SLIDE);
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- NEW: Check if mobile ---
+            const isMobile = window.innerWidth <= 768;
 
-        Papa.parse(GOOGLE_SHEET_URL, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                const menuData = results.data.filter(row => row.Category && row.Category.trim() !== 'Footer');
-                const footerData = results.data.filter(row => row.Category && row.Category.trim() === 'Footer');
-                
-                // --- NEW: Use different function based on device ---
-                if (isMobile) {
-                    displayMobileMenu(menuData);
-                } else {
-                    displayMenuSlideshow(menuData);
-                }
-                displayFooter(footerData);
-            },
-            error: (error) => console.error('Error loading menu:', error)
-        });
-    });
+            const aspectRatio = window.innerWidth / window.innerHeight;
+            COLUMNS_PER_SLIDE = (aspectRatio > 2) ? 2 : 4;
+            document.documentElement.style.setProperty('--columns-per-slide', COLUMNS_PER_SLIDE);
 
-    /**
-     * NEW: Renders the entire menu for mobile (no slideshow).
-     */
-    function displayMobileMenu(data) {
-        const menuGrid = document.getElementById('menu-grid');
-        if (!data.length) return;
+            Papa.parse(GOOGLE_SHEET_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    const menuData = results.data.filter(row => row.Category && row.Category.trim() !== 'Footer');
+                    const footerData = results.data.filter(row => row.Category && row.Category.trim() === 'Footer');
 
-        const categories = {};
-        data.forEach(item => {
-            if (!categories[item.Category]) categories[item.Category] = [];
-            categories[item.Category].push(item);
+                    // --- NEW: Use different function based on device ---
+                    if (isMobile) {
+                        displayMobileMenu(menuData);
+                    } else {
+                        displayMenuSlideshow(menuData);
+                    }
+                    displayFooter(footerData);
+                },
+                error: (error) => console.error('Error loading menu:', error)
+            });
         });
 
-        const categoryNames = Object.keys(categories);
+        /**
+         * NEW: Renders the entire menu for mobile (no slideshow).
+         */
+        function displayMobileMenu(data) {
+            const menuGrid = document.getElementById('menu-grid');
+            if (!data.length) return;
 
-        // Render all categories in one go
-        const allColumnsHtml = categoryNames.map(categoryName => {
-            const itemsHtml = categories[categoryName].map(item => {
-                // Logic to render item (copied from original)
-                if (!item.ItemName && item.Price) {
-                    return `<div class="price-line">${item.Price}</div>`;
-                }
-                if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
-                    return `<h3 class="sub-heading">${item.ItemName}</h3>`;
-                }
-                return `
+            const categories = {};
+            data.forEach(item => {
+                if (!categories[item.Category]) categories[item.Category] = [];
+                categories[item.Category].push(item);
+            });
+
+            const categoryNames = Object.keys(categories);
+
+            // Render all categories in one go
+            const allColumnsHtml = categoryNames.map(categoryName => {
+                const itemsHtml = categories[categoryName].map(item => {
+                    // Logic to render item (copied from original)
+                    if (!item.ItemName && item.Price) {
+                        return `<div class="price-line">${item.Price}</div>`;
+                    }
+                    if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
+                        return `<h3 class="sub-heading">${item.ItemName}</h3>`;
+                    }
+                    return `
                     <div>
                         <div class="menu-item">
                             <span class="menu-item-name">${item.ItemName}</span>
@@ -289,52 +400,52 @@
                         ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
                     </div>
                 `;
+                }).join('');
+                // Each category still gets a .menu-column wrapper, which will be stacked by the mobile CSS
+                return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
             }).join('');
-            // Each category still gets a .menu-column wrapper, which will be stacked by the mobile CSS
-            return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
-        }).join('');
-        
-        menuGrid.innerHTML = allColumnsHtml;
-        // No opacity transition or interval needed
-    }
 
-    /**
-     * EXISTING: Manages the slideshow for DESKTOP.
-     */
-    function displayMenuSlideshow(data) {
-        const menuGrid = document.getElementById('menu-grid');
-        if (!data.length) return;
-
-        const categories = {};
-        data.forEach(item => {
-            if (!categories[item.Category]) categories[item.Category] = [];
-            categories[item.Category].push(item);
-        });
-
-        const categoryNames = Object.keys(categories);
-        const slides = [];
-        for (let i = 0; i < categoryNames.length; i += COLUMNS_PER_SLIDE) {
-            slides.push(categoryNames.slice(i, i + COLUMNS_PER_SLIDE));
+            menuGrid.innerHTML = allColumnsHtml;
+            // No opacity transition or interval needed
         }
 
-        let currentSlideIndex = 0;
+        /**
+         * EXISTING: Manages the slideshow for DESKTOP.
+         */
+        function displayMenuSlideshow(data) {
+            const menuGrid = document.getElementById('menu-grid');
+            if (!data.length) return;
 
-        function renderSlide(slideIndex) {
-            const slideCategories = slides[slideIndex];
-            if (!slideCategories) return;
-            menuGrid.style.opacity = 0;
+            const categories = {};
+            data.forEach(item => {
+                if (!categories[item.Category]) categories[item.Category] = [];
+                categories[item.Category].push(item);
+            });
 
-            setTimeout(() => {
-                const columnsHtml = slideCategories.map(categoryName => {
-                    const itemsHtml = categories[categoryName].map(item => {
-                        // (Original logic remains)
-                        if (!item.ItemName && item.Price) {
-                            return `<div class="price-line">${item.Price}</div>`;
-                        }
-                        if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
-                            return `<h3 class="sub-heading">${item.ItemName}</h3>`;
-                        }
-                        return `
+            const categoryNames = Object.keys(categories);
+            const slides = [];
+            for (let i = 0; i < categoryNames.length; i += COLUMNS_PER_SLIDE) {
+                slides.push(categoryNames.slice(i, i + COLUMNS_PER_SLIDE));
+            }
+
+            let currentSlideIndex = 0;
+
+            function renderSlide(slideIndex) {
+                const slideCategories = slides[slideIndex];
+                if (!slideCategories) return;
+                menuGrid.style.opacity = 0;
+
+                setTimeout(() => {
+                    const columnsHtml = slideCategories.map(categoryName => {
+                        const itemsHtml = categories[categoryName].map(item => {
+                            // (Original logic remains)
+                            if (!item.ItemName && item.Price) {
+                                return `<div class="price-line">${item.Price}</div>`;
+                            }
+                            if (item.ItemName && !item.Price && item.ItemName === item.ItemName.toUpperCase()) {
+                                return `<h3 class="sub-heading">${item.ItemName}</h3>`;
+                            }
+                            return `
                             <div>
                                 <div class="menu-item">
                                     <span class="menu-item-name">${item.ItemName}</span>
@@ -344,44 +455,45 @@
                                 ${item.Description ? `<p class="description">${item.Description}</p>` : ''}
                             </div>
                         `;
+                        }).join('');
+                        return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
                     }).join('');
-                    return `<div class="menu-column"><h2 class="font-display menu-category">${categoryName}</h2>${itemsHtml}</div>`;
-                }).join('');
-                
-                menuGrid.innerHTML = columnsHtml;
-                menuGrid.style.opacity = 1;
-            }, 500);
+
+                    menuGrid.innerHTML = columnsHtml;
+                    menuGrid.style.opacity = 1;
+                }, 500);
+            }
+
+            renderSlide(0);
+
+            if (slides.length > 1) {
+                setInterval(() => {
+                    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                    renderSlide(currentSlideIndex);
+                }, SLIDE_INTERVAL_SECONDS * 1000);
+            }
         }
 
-        renderSlide(0);
-        
-        if (slides.length > 1) {
-            setInterval(() => {
-                currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-                renderSlide(currentSlideIndex);
-            }, SLIDE_INTERVAL_SECONDS * 1000);
-        }
-    }
-
-    /**
-     * EXISTING: Manages the footer (no changes needed).
-     */
-    function displayFooter(data) {
-        if (data.length === 0) return;
-        const footerContainer = document.getElementById('footer-items');
-        const footerHtml = data.map(item => {
-            if (!item.ImageURL) return '';
-            return `
+        /**
+         * EXISTING: Manages the footer (no changes needed).
+         */
+        function displayFooter(data) {
+            if (data.length === 0) return;
+            const footerContainer = document.getElementById('footer-items');
+            const footerHtml = data.map(item => {
+                if (!item.ImageURL) return '';
+                return `
                 <div class="footer-item">
                     <img src="${item.ImageURL}" alt="${item.ItemName}">
                     <h3 class="font-display footer-item-title">${item.ItemName || ''} ${item.Price || ''}</h3>
                 </div>
             `;
-        }).join('');
-        footerContainer.innerHTML = footerHtml + footerHtml;
-        footerContainer.style.animationDuration = `${data.length * SECONDS_PER_ITEM}s`;
-    }
-</script>
+            }).join('');
+            footerContainer.innerHTML = footerHtml + footerHtml;
+            footerContainer.style.animationDuration = `${data.length * SECONDS_PER_ITEM}s`;
+        }
+    </script>
 
 </body>
+
 </html>
